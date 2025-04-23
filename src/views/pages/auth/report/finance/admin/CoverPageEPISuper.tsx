@@ -27,7 +27,7 @@ const ReportCoverPage: React.FC<CoverPageProps> = ({
             Vaccination Report
           </h1>
           <p className="text-xl font-medium text-gray-700 mt-4">
-            EPI ADMIN (Kandahar) REPORT
+            FINANCE ADMIN (ProvinceName) REPORT
           </p>
         </div>
 
@@ -64,7 +64,7 @@ const ReportCoverPage: React.FC<CoverPageProps> = ({
 
         {/* Footer */}
         <footer className="text-center border-t pt-6 text-sm text-gray-500">
-          EPI Super Admin Reporting System &mdash; Confidential
+          Finance Admin Reporting System &mdash; Confidential
         </footer>
       </div>
     </div>
