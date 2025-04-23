@@ -34,6 +34,7 @@ const mockZoneData: Record<
     females: number;
     travelTypes: { type1: number; type2: number; type3: number };
     destinations: Record<string, number>;
+    ageCategories: Record<string, number>; // New field for age categories
   }
 > = {
   Herat: {
@@ -54,6 +55,12 @@ const mockZoneData: Record<
       UK: 9,
       Canada: 6,
     },
+    ageCategories: {
+      "Under 18": 30,
+      "19-29": 40,
+      "30-50": 60,
+      "Over 50": 20,
+    },
   },
   Mazar: {
     males: 85,
@@ -72,6 +79,12 @@ const mockZoneData: Record<
       USA: 6,
       UK: 7,
       Canada: 3,
+    },
+    ageCategories: {
+      "Under 18": 25,
+      "19-29": 35,
+      "30-50": 50,
+      "Over 50": 15,
     },
   },
   Kabul: {
@@ -92,6 +105,12 @@ const mockZoneData: Record<
       UK: 13,
       Canada: 7,
     },
+    ageCategories: {
+      "Under 18": 50,
+      "19-29": 80,
+      "30-50": 120,
+      "Over 50": 30,
+    },
   },
   Kandahar: {
     males: 60,
@@ -110,6 +129,12 @@ const mockZoneData: Record<
       USA: 3,
       UK: 5,
       Canada: 1,
+    },
+    ageCategories: {
+      "Under 18": 15,
+      "19-29": 25,
+      "30-50": 40,
+      "Over 50": 10,
     },
   },
 };
