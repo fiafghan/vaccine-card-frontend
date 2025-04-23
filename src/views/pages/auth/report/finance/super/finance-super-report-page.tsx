@@ -308,6 +308,7 @@ export default function FinanceSuperReportPage() {
               >
                 Generate Report
               </button>
+
             </div>
           </div>
         </div>

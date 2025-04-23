@@ -278,8 +278,8 @@ export default function FinanceAdminReportPage() {
 
               <button
                 onClick={() => setShowFilters(false)}
-                className="w-[700px] bg-green-600 border-2 border-gray-800 
-              text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300"
+                className="w-[700px] bg-gray-900 border-2 border-gray-800 
+              text-green-300 font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300"
               >
                 Generate Report
               </button>
