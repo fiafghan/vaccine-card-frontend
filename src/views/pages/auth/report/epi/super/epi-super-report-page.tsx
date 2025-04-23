@@ -169,22 +169,36 @@ export default function EpiSuperReportPage() {
   const [selectedGender, setSelectedGender] = useState<string>("All");
   const [selectedTravelType, setSelectedTravelType] = useState<string>("All");
   const [selectedDestination, setSelectedDestination] = useState<string>("All");
+  
 
   // Controls visibility of entire header + filters block
   const [showFilters, setShowFilters] = useState(true);
 
   const baseData = useMemo(() => {
-    if (selectedZone === "All Zones") return aggregateAllZones(mockZoneData);
+    if (selectedZone === "All Zones") {
+      const aggregated = aggregateAllZones(mockZoneData);
+      return {
+        ...aggregated,
+        ageCategories: zones.reduce((acc, zone) => {
+          const ageData = mockZoneData[zone]?.ageCategories || {};
+          for (const ageCat in ageData) {
+            acc[ageCat] = (acc[ageCat] || 0) + ageData[ageCat];
+          }
+          return acc;
+        }, {} as Record<string, number>),
+      };
+    }
+  
     return (
       mockZoneData[selectedZone] ?? {
         males: 0,
         females: 0,
         travelTypes: { type1: 0, type2: 0, type3: 0 },
         destinations: {},
+        ageCategories: {},
       }
     );
   }, [selectedZone]);
-
   const males =
     selectedGender === "All" || selectedGender === "Males" ? baseData.males : 0;
   const females =
@@ -214,6 +228,7 @@ export default function EpiSuperReportPage() {
           [selectedDestination]:
             baseData.destinations[selectedDestination] || 0,
         };
+
 
   return (
     <div className="min-h-screen bg-white p-4 flex flex-col items-center justify-start">
@@ -316,10 +331,12 @@ export default function EpiSuperReportPage() {
                 </select>
               </div>
 
+
               <button
                 onClick={() => setShowFilters(false)}
-                className="w-[700px] bg-green-600 border-2 border-gray-800 
-              text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300"
+                className="w-[700px] mt-7 bg-green-600 border-2 border-gray-800 
+              text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-700 
+              transition-colors duration-300"
               >
                 Generate Report
               </button>
@@ -382,6 +399,8 @@ export default function EpiSuperReportPage() {
               title="Travel Type distribution"
             />
           </div>
+
+          
 
           <div className="md:col-span-2 p-4 border rounded-lg shadow-sm bg-green-50">
             <h2 className="text-lg font-semibold mb-2 text-green-800">
