@@ -334,7 +334,7 @@ export default function EpiSuperReportPage() {
 
               <button
                 onClick={() => setShowFilters(false)}
-                className="w-[700px] mt-7 bg-green-600 border-2 border-gray-800 
+                className="w-[700px] mt-2 bg-green-600 border-2 border-gray-800 
               text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-700 
               transition-colors duration-300"
               >
