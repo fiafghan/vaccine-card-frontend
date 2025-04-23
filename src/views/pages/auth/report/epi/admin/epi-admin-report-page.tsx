@@ -186,7 +186,7 @@ export default function EpiAdminPage() {
       {showFilters && (
         <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8 mb-6">
           <h1 className="text-2xl font-bold text-green-700 mb-6 text-center uppercase">
-            Report Viewer For EPI Super Admin
+            Report Viewer For EPI Admin
           </h1>
 
           <div className="mb-4">

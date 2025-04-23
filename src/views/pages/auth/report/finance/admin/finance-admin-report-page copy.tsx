@@ -139,7 +139,7 @@ const mockZoneData: Record<
 };
 
 
-export default function FinanceAdminReportPage() {
+export default function EpiAdminPage() {
   const [selectedGender, setSelectedGender] = useState<string>("All");
   const [selectedTravelType, setSelectedTravelType] = useState<string>("All");
   const [selectedDestination, setSelectedDestination] = useState<string>("All");
@@ -186,7 +186,7 @@ export default function FinanceAdminReportPage() {
       {showFilters && (
         <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8 mb-6">
           <h1 className="text-2xl font-bold text-green-700 mb-6 text-center uppercase">
-            Report Viewer For Finance Admin
+            Report Viewer For EPI Super Admin
           </h1>
 
           <div className="mb-4">
@@ -312,13 +312,13 @@ export default function FinanceAdminReportPage() {
               Gender Stats
             </h2>
             <p>
-              Males: <strong>{males*500} AFN</strong>
+              Males: <strong>{males}</strong>
             </p>
             <p>
-              Females: <strong>{females*500} AFN</strong>
+              Females: <strong>{females}</strong>
             </p>
 
-            <BarChartTwo male={males*500} female={females*500} />
+            <BarChartTwo male={males} female={females} />
           </div>
 
           <div className="p-4 border rounded-lg shadow-sm bg-green-50">
@@ -326,13 +326,13 @@ export default function FinanceAdminReportPage() {
               Travel Types
             </h2>
             <p>
-              Type 1: <strong>{travelTypes.type1*500} AFN</strong>
+              Type 1: <strong>{travelTypes.type1}</strong>
             </p>
             <p>
-              Type 2: <strong>{travelTypes.type2*500} AFN</strong>
+              Type 2: <strong>{travelTypes.type2}</strong>
             </p>
             <p>
-              Type 3: <strong>{travelTypes.type3*500} AFN</strong>
+              Type 3: <strong>{travelTypes.type3}</strong>
             </p>
             <PieChartTwo
               type1={travelTypes.type1}
@@ -349,7 +349,7 @@ export default function FinanceAdminReportPage() {
             <ul className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
               {Object.entries(destinations).map(([country, count]) => (
                 <li key={country}>
-                  {country}: <strong>{count*500}</strong>
+                  {country}: <strong>{count}</strong>
                 </li>
               ))}
             </ul>
@@ -357,11 +357,11 @@ export default function FinanceAdminReportPage() {
             <AreaChartTow data={
 
                [
-                { country: "Saudi Arabia", passengers: 180*500 },
-                { country: "Pakistan", passengers: 67*500 },
-                { country: "Iran", passengers: 68*500 },
-                { country: "Turkey", passengers: 57*500 },
-                { country: "UAE", passengers: 47*500 },
+                { country: "Saudi Arabia", passengers: 300 },
+                { country: "Pakistan", passengers: 6399 },
+                { country: "Iran", passengers: 1290 },
+                { country: "Russia", passengers: 5430 },
+                { country: "Japan", passengers: 3030 },
                 
               ]
 
