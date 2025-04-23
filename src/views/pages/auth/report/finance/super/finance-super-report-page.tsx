@@ -26,7 +26,8 @@ const destinationsList = [
   "Canada",
 ];
 
-// Mock data same as before
+// Mock data with total price per zone (500 AFN per vaccine card)
+
 const mockZoneData: Record<
   string,
   {
@@ -34,7 +35,7 @@ const mockZoneData: Record<
     females: number;
     travelTypes: { type1: number; type2: number; type3: number };
     destinations: Record<string, number>;
-    ageCategories: Record<string, number>; // New field for age categories
+    totalPrice: number; // Total price = (males + females) * 500
   }
 > = {
   Herat: {
@@ -55,12 +56,7 @@ const mockZoneData: Record<
       UK: 9,
       Canada: 6,
     },
-    ageCategories: {
-      "Under 18": 30,
-      "19-29": 40,
-      "30-50": 60,
-      "Over 50": 20,
-    },
+    totalPrice: (120 + 90) * 500, // 210 * 500 = 105000 AFN
   },
   Mazar: {
     males: 85,
@@ -80,12 +76,7 @@ const mockZoneData: Record<
       UK: 7,
       Canada: 3,
     },
-    ageCategories: {
-      "Under 18": 25,
-      "19-29": 35,
-      "30-50": 50,
-      "Over 50": 15,
-    },
+    totalPrice: (85 + 100) * 500, // 185 * 500 = 92500 AFN
   },
   Kabul: {
     males: 200,
@@ -105,12 +96,7 @@ const mockZoneData: Record<
       UK: 13,
       Canada: 7,
     },
-    ageCategories: {
-      "Under 18": 50,
-      "19-29": 80,
-      "30-50": 120,
-      "Over 50": 30,
-    },
+    totalPrice: (200 + 180) * 500, // 380 * 500 = 190000 AFN
   },
   Kandahar: {
     males: 60,
@@ -130,14 +116,10 @@ const mockZoneData: Record<
       UK: 5,
       Canada: 1,
     },
-    ageCategories: {
-      "Under 18": 15,
-      "19-29": 25,
-      "30-50": 40,
-      "Over 50": 10,
-    },
+    totalPrice: (60 + 70) * 500, // 130 * 500 = 65000 AFN
   },
 };
+
 
 function aggregateAllZones(zonesData: typeof mockZoneData) {
   const result = {
@@ -164,7 +146,7 @@ function aggregateAllZones(zonesData: typeof mockZoneData) {
 }
 
 
-export default function EpiSuperReportPage() {
+export default function FinanceSuperReportPage() {
   const [selectedZone, setSelectedZone] = useState<string>("All Zones");
   const [selectedGender, setSelectedGender] = useState<string>("All");
   const [selectedTravelType, setSelectedTravelType] = useState<string>("All");
@@ -221,7 +203,7 @@ export default function EpiSuperReportPage() {
       {showFilters && (
         <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8 mb-6">
           <h1 className="text-2xl font-bold text-green-700 mb-6 text-center uppercase">
-            Report Viewer For EPI Super Admin
+            Report Viewer For Finance Super Admin
           </h1>
 
           <div className="mb-4">
@@ -262,7 +244,8 @@ export default function EpiSuperReportPage() {
                   id="gender-select"
                   value={selectedGender}
                   onChange={(e) => setSelectedGender(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none 
+                  focus:ring-2 focus:ring-green-600"
                 >
                   {genders.map((g) => (
                     <option key={g} value={g}>
@@ -284,7 +267,8 @@ export default function EpiSuperReportPage() {
                   id="traveltype-select"
                   value={selectedTravelType}
                   onChange={(e) => setSelectedTravelType(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none 
+                  focus:ring-2 focus:ring-green-600"
                 >
                   {travelTypeOptions.map((type) => (
                     <option key={type} value={type}>
@@ -318,8 +302,9 @@ export default function EpiSuperReportPage() {
 
               <button
                 onClick={() => setShowFilters(false)}
-                className="w-[700px] bg-green-600 border-2 border-gray-800 
-              text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300"
+                className="col-span-4 bg-gray-900 border-2 border-gray-800 
+              text-green-300 font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-700 
+              transition-colors duration-300"
               >
                 Generate Report
               </button>
@@ -353,13 +338,13 @@ export default function EpiSuperReportPage() {
               Gender Stats
             </h2>
             <p>
-              Males: <strong>{males}</strong>
+              Males: <strong>{males*500} AFN</strong>
             </p>
             <p>
-              Females: <strong>{females}</strong>
+              Females: <strong>{females*500} AFN</strong>
             </p>
 
-            <BarChartTwo male={males} female={females} />
+            <BarChartTwo male={males*500} female={females*500} />
           </div>
 
           <div className="p-4 border rounded-lg shadow-sm bg-green-50">
@@ -367,13 +352,13 @@ export default function EpiSuperReportPage() {
               Travel Types
             </h2>
             <p>
-              Type 1: <strong>{travelTypes.type1}</strong>
+              Type 1: <strong>{travelTypes.type1 * 500} AFN</strong>
             </p>
             <p>
-              Type 2: <strong>{travelTypes.type2}</strong>
+              Type 2: <strong>{travelTypes.type2 * 500} AFN</strong>
             </p>
             <p>
-              Type 3: <strong>{travelTypes.type3}</strong>
+              Type 3: <strong>{travelTypes.type3 * 500} AFN</strong>
             </p>
             <PieChartTwo
               type1={travelTypes.type1}
@@ -390,7 +375,7 @@ export default function EpiSuperReportPage() {
             <ul className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
               {Object.entries(destinations).map(([country, count]) => (
                 <li key={country}>
-                  {country}: <strong>{count}</strong>
+                  {country}: <strong>{count * 500} AFN</strong>
                 </li>
               ))}
             </ul>
@@ -398,11 +383,11 @@ export default function EpiSuperReportPage() {
             <AreaChartTow data={
 
                [
-                { country: "Saudi Arabia", passengers: 300 },
-                { country: "Pakistan", passengers: 6399 },
-                { country: "Iran", passengers: 1290 },
-                { country: "Russia", passengers: 5430 },
-                { country: "Japan", passengers: 3030 },
+                { country: "Saudi Arabia", passengers: 180*500 },
+                { country: "Pakistan", passengers: 67*500 },
+                { country: "Iran", passengers: 68*500 },
+                { country: "UAE", passengers: 47*500 },
+                { country: "Turkey", passengers: 57*500 },
                 
               ]
 
