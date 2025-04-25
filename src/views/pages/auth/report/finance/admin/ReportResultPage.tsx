@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import ReportCoverPage from "./CoverPageEPISuper";
+import ReportCoverPage from "./CoverPageFinanceAdmin";
 
 export default function ReportResultPage() {
   const location = useLocation();

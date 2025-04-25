@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import ReportCoverPage from "./CoverPageEPISuper";
+import ReportCoverPage from "./CoverPageFinanceSuper";
 import BarChartTwo from "./BarChartTwo";
 import PieChartTwo from "./PieChart2";
 import AreaChartTow from "./AreaChartTwo";
@@ -152,6 +152,7 @@ export default function FinanceSuperReportPage() {
   const [selectedTravelType, setSelectedTravelType] = useState<string>("All");
   const [selectedDestination, setSelectedDestination] = useState<string>("All");
 
+
   // Controls visibility of entire header + filters block
   const [showFilters, setShowFilters] = useState(true);
 
@@ -198,10 +199,11 @@ export default function FinanceSuperReportPage() {
         };
 
   return (
-    <div className="min-h-screen bg-white p-4 flex flex-col items-center justify-start">
+    <div className="min-h-screen  p-4 items-center justify-start  bg-white px-4 sm:px-6 lg:px-8 py-6 
+    flex flex-col items-cente print:border-0">
       {/* Header + Filters: hidden together */}
       {showFilters && (
-        <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8 mb-6">
+        <div className="w-full max-w-3xl bg-white rounded-2xl">
           <h1 className="text-2xl font-bold text-green-700 mb-6 text-center uppercase">
             Report Viewer For Finance Super Admin
           </h1>
@@ -301,7 +303,10 @@ export default function FinanceSuperReportPage() {
               </div>
 
               <button
-                onClick={() => setShowFilters(false)}
+                onClick={() => {setShowFilters(false)
+                  document.body.style.overflow = 'hidden';
+                }
+                }
                 className="col-span-4 bg-gray-900 border-2 border-gray-800 
               text-green-300 font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-700 
               transition-colors duration-300"
@@ -315,7 +320,7 @@ export default function FinanceSuperReportPage() {
       )}
 
       {/* Report Results Section */}
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8">
+      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8 overflow-x-auto">
         <div className="flex justify-center">
           {/* Cover Page of Report */}
           <ReportCoverPage

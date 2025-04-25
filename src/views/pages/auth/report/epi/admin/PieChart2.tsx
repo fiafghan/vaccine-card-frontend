@@ -1,4 +1,4 @@
-import { Pie, PieChart, Tooltip } from "recharts";
+import { Pie, PieChart, Tooltip, ResponsiveContainer } from "recharts";
 
 import {
   Card,
@@ -16,7 +16,7 @@ interface PieChartTwoProps {
   description?: string;
 }
 
-const COLORS = ["#22c55e", "#000000", "#d9f7d9"]; // green, black, very light green (instead of white)
+const COLORS = ["#22c55e", "#86efac", "#d9f7d9"]; // green, light green, very light green
 
 export default function PieChartTwo({
   type1,
@@ -27,8 +27,8 @@ export default function PieChartTwo({
 }: PieChartTwoProps) {
   if (type1 + type2 + type3 === 0) {
     return (
-      <Card className="p-4">
-        <p className="text-center text-black">
+      <Card className="p-4 bg-green-50">
+        <p className="text-center text-green-700">
           No data available for travel types.
         </p>
       </Card>
@@ -42,38 +42,39 @@ export default function PieChartTwo({
   ];
 
   return (
-    <Card className="flex flex-col bg-white">
-      <CardHeader className="items-center pb-0">
-        <CardTitle className="text-green-700">{title}</CardTitle>
-        <CardDescription className="text-green-600">
-          {description}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex-1">
-        <div style={{ width: 250, height: 250, margin: "0 auto" }}>
-          <PieChart width={250} height={250}>
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "white",
-                borderRadius: 8,
-                borderColor: "#22c55e",
-              }}
-              labelStyle={{ color: "#22c55e", fontWeight: "bold" }}
-            />
-            <Pie
-              data={chartData}
-              dataKey="value"
-              nameKey="name"
-              outerRadius={100}
-              stroke="#000"
-              strokeWidth={1}
-              label={({ name, percent }) =>
-                `${name}: ${(percent! * 100).toFixed(0)}%`
-              }
-            />
-          </PieChart>
-        </div>
-      </CardContent>
-    </Card>
+    <Card className="flex flex-col bg-green-50 rounded-2xl shadow-md print:bg-green-50 print:shadow-md w-full max-w-[500px] mx-auto">
+  <CardHeader className="items-center pb-0">
+    <CardTitle className="text-green-700 text-xl">{title}</CardTitle>
+    <CardDescription className="text-green-600">{description}</CardDescription>
+  </CardHeader>
+  <CardContent className="flex justify-center items-center p-4 h-[350px] print:h-[350px]">
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Tooltip
+          contentStyle={{
+            backgroundColor: "#f0fdf4",
+            borderRadius: 8,
+            borderColor: "#22c55e",
+          }}
+          labelStyle={{
+            color: "#15803d",
+            fontWeight: "bold",
+          }}
+        />
+        <Pie
+          data={chartData}
+          dataKey="value"
+          nameKey="name"
+          outerRadius="80%"
+          stroke="#15803d"
+          strokeWidth={1}
+          label={({ name, percent }) =>
+            `${name}: ${(percent! * 100).toFixed(0)}%`
+          }
+        />
+      </PieChart>
+    </ResponsiveContainer>
+  </CardContent>
+</Card>
   );
 }

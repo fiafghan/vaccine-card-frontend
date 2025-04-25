@@ -1,13 +1,16 @@
-import { useState} from "react";
-import ReportCoverPage from "./CoverPageEPIAdmin";
+import { useState, useMemo, useRef } from "react";
+import ReportCoverPage from "./CoverPageEPISuper";
 import BarChartTwo from "./BarChartTwo";
 import PieChartTwo from "./PieChart2";
 import AreaChartTow from "./AreaChartTwo";
+import { Printer } from "lucide-react";
 
+
+const zones = ["Herat", "Mazar", "Kabul", "Kandahar"];
 
 const genders = ["All", "Males", "Females"];
 
-const travelTypeOptions = ["All", "Type 1", "Type 2", "Type 3"];  
+const travelTypeOptions = ["All", "Type 1", "Type 2", "Type 3"];
 
 const destinationsList = [
   "All",
@@ -138,17 +141,52 @@ const mockZoneData: Record<
   },
 };
 
+function aggregateAllZones(zonesData: typeof mockZoneData) {
+  const result = {
+    males: 0,
+    females: 0,
+    travelTypes: { type1: 0, type2: 0, type3: 0 },
+    destinations: {} as Record<string, number>,
+  };
 
-export default function EpiAdminPage() {
+  for (const zone in zonesData) {
+    const data = zonesData[zone];
+    result.males += data.males;
+    result.females += data.females;
+    result.travelTypes.type1 += data.travelTypes.type1;
+    result.travelTypes.type2 += data.travelTypes.type2;
+    result.travelTypes.type3 += data.travelTypes.type3;
+
+    for (const dest in data.destinations) {
+      result.destinations[dest] =
+        (result.destinations[dest] || 0) + data.destinations[dest];
+    }
+  }
+  return result;
+}
+
+
+export default function EpiSuperReportPage() {
+  const [selectedZone, setSelectedZone] = useState<string>("All Zones");
   const [selectedGender, setSelectedGender] = useState<string>("All");
   const [selectedTravelType, setSelectedTravelType] = useState<string>("All");
   const [selectedDestination, setSelectedDestination] = useState<string>("All");
-
-
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Controls visibility of entire header + filters block
   const [showFilters, setShowFilters] = useState(true);
-  const baseData = mockZoneData["Kandahar"];
+
+  const baseData = useMemo(() => {
+    if (selectedZone === "All Zones") return aggregateAllZones(mockZoneData);
+    return (
+      mockZoneData[selectedZone] ?? {
+        males: 0,
+        females: 0,
+        travelTypes: { type1: 0, type2: 0, type3: 0 },
+        destinations: {},
+      }
+    );
+  }, [selectedZone]);
 
   const males =
     selectedGender === "All" || selectedGender === "Males" ? baseData.males : 0;
@@ -181,14 +219,17 @@ export default function EpiAdminPage() {
         };
 
   return (
-    <div className="min-h-screen bg-white p-4 flex flex-col items-center justify-start">
+    <div className="min-h-screen bg-white p-4 flex flex-col items-center 
+    justify-start " ref={contentRef}>
+      
       {/* Header + Filters: hidden together */}
       {showFilters && (
-        <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8 mb-6">
+        <div className="print:hidden w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8 mb-6">
           <h1 className="text-2xl font-bold text-green-700 mb-6 text-center uppercase">
-            Report Viewer For EPI Admin
+            Report Viewer For EPI Super Admin
           </h1>
 
+         
           <div className="mb-4">
             <h2 className="text-lg font-bold text-green-700 mb-4">Filters</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -202,11 +243,17 @@ export default function EpiAdminPage() {
                 </label>
                 <select
                   id="zone-select"
-                  value="Kandahar"
-                  disabled
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  value={selectedZone}
+                  onChange={(e) => setSelectedZone(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none 
+                  focus:ring-2 focus:ring-green-600"
                 >
-                  <option value="">Kandahar</option>
+                  <option value="All Zones">-- All Zones --</option>
+                  {zones.map((zone) => (
+                    <option key={zone} value={zone}>
+                      {zone}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -222,7 +269,8 @@ export default function EpiAdminPage() {
                   id="gender-select"
                   value={selectedGender}
                   onChange={(e) => setSelectedGender(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none 
+                  focus:ring-2 focus:ring-green-600"
                 >
                   {genders.map((g) => (
                     <option key={g} value={g}>
@@ -244,7 +292,8 @@ export default function EpiAdminPage() {
                   id="traveltype-select"
                   value={selectedTravelType}
                   onChange={(e) => setSelectedTravelType(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg 
+                  focus:outline-none focus:ring-2 focus:ring-green-600"
                 >
                   {travelTypeOptions.map((type) => (
                     <option key={type} value={type}>
@@ -275,27 +324,36 @@ export default function EpiAdminPage() {
                   ))}
                 </select>
               </div>
+                  </div>
+                </div>
 
-              <button
-                onClick={() => setShowFilters(false)}
-                className="w-[700px] bg-gray-900 border-2 border-gray-800 
-              text-green-300 font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300"
+                <div>
+                <button
+                onClick={() => {window.print(),
+                  setShowFilters(false)
+                }}
+                className="p-3 rounded-md bg-gray-900 hover:bg-gray-700 text-green-400 ring-gray-700 
+                shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 
+                focus:ring-gray-700 w-full flex justify-center"
+                aria-label="Print"
               >
-                Generate Report
+                <Printer className="w-5 h-5 mr-2" />Print
               </button>
-            </div>
-          </div>
+                </div>
+                
+
         </div>
       )}
 
       {/* Report Results Section */}
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8">
-        <div className="flex justify-center">
+      <div  id = "report-section" className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8">
+        <div  className="flex justify-center">
           {/* Cover Page of Report */}
           <ReportCoverPage
             userName="Test User"
             generationDate={new Date().toLocaleString()}
             filters={{
+              zone: selectedZone,
               gender: selectedGender,
               travelType: selectedTravelType,
               destination: selectedDestination,
@@ -306,9 +364,9 @@ export default function EpiAdminPage() {
         <h2 className="text-xl font-bold text-green-700 mb-4 text-center">
           Report Results
         </h2>
-        <div className="grid gap-6 md:grid-cols-2 text-black">
-          <div className="p-4 border rounded-lg shadow-sm bg-green-50">
-            <h2 className="text-lg font-semibold mb-2 text-green-800">
+        <div className="grid gap-4 md:grid-cols-2 text-black tex-sm print:report-section">
+          <div className="p-2 border rounded-lg shadow-sm bg-green-50">
+            <h2 className="text-base font-semibold mb-1 text-green-800">
               Gender Stats
             </h2>
             <p>

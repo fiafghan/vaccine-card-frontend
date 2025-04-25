@@ -73,7 +73,7 @@ export default function AddUser(props: AddUserProps) {
       const response = await axiosClient.post("epi/user/store", {
         permissions: userData?.permissions,
         status: userData.status == true,
-        role_id: userData?.role?.id,
+        role_id: userData?.role?.id ,
         zone_id: userData?.zone?.id,
         job_id: userData.job.id,
         destination_id: userData.destination.id,

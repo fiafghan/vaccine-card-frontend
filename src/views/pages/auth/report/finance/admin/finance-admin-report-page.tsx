@@ -1,5 +1,5 @@
 import { useState} from "react";
-import ReportCoverPage from "./CoverPageEPISuper";
+import ReportCoverPage from "./CoverPageFinanceAdmin";
 import BarChartTwo from "./BarChartTwo";
 import PieChartTwo from "./PieChart2";
 import AreaChartTow from "./AreaChartTwo";
