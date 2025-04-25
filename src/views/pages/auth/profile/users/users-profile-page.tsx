@@ -10,8 +10,8 @@ import {
   BreadcrumbItem,
   BreadcrumbSeparator,
 } from "@/components/custom-ui/Breadcrumb/Breadcrumb";
-import UserProfileHeader from "./user-profile-header";
 import { EditProfilePassword } from "../general/edit-profile-password";
+import UserProfileHeader from "../general/user-profile-header";
 
 export default function UsersProfilePage() {
   const { user } = useUserAuthState();
@@ -38,7 +38,10 @@ export default function UsersProfilePage() {
         className="flex flex-col sm:flex-row gap-x-3 gap-y-2 sm:gap-y-0"
       >
         <TabsList className="sm:min-h-[550px] h-fit pb-8 min-w-[300px] md:w-[300px] gap-y-4 items-start justify-start flex flex-col bg-card border">
-          <UserProfileHeader />
+          <UserProfileHeader
+            profile_upload_url={"user/profile/picture-update"}
+            profile_delete_url={"general/profile/info/update"}
+          />
           <TabsTrigger
             className={`mt-6 rtl:text-2xl-rtl ltr:text-2xl-ltr  ${selectedTabStyle}`}
             value="Account"

@@ -8,12 +8,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Briefcase } from "lucide-react";
-
-import { useUserAuthState } from "@/context/AuthContextProvider";
-import { UserPermission } from "@/database/tables";
-import { PermissionEnum } from "@/lib/constants";
-
 import { toast } from "@/components/ui/use-toast";
 import { CACHE } from "@/lib/constants";
 import { useEffect, useRef, useState } from "react";
@@ -25,7 +19,7 @@ import Pagination from "@/components/custom-ui/table/Pagination";
 
 import { setDateToURL, toLocaleDate } from "@/lib/utils";
 import NastranModel from "@/components/custom-ui/model/NastranModel";
-import { Languages, ListFilter, MapPinHouse, Search } from "lucide-react";
+import { ListFilter, Search } from "lucide-react";
 import CustomInput from "@/components/custom-ui/input/CustomInput";
 import SecondaryButton from "@/components/custom-ui/button/SecondaryButton";
 import CustomSelect from "@/components/custom-ui/select/CustomSelect";
@@ -51,13 +45,8 @@ export default function Activity() {
   const { updateComponentCache, getComponentCache } = useCacheDB();
   const [state] = useGlobalState();
   const [selectedTab, setSelectedTab] = useState("admin"); // default to "user"
-  const [isAdmin, setIsAdmin] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [searchParams] = useSearchParams();
-  const { user } = useUserAuthState();
-
-  const per: UserPermission = user?.permissions.get(
-    PermissionEnum.settings.name
-  ) as UserPermission;
 
   // Accessing individual search filters
   const searchValue = searchParams.get("sch_val");

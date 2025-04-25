@@ -8,60 +8,19 @@ import { toast } from "@/components/ui/use-toast";
 import { Dispatch, SetStateAction } from "react";
 import { setServerError } from "@/validation/validation";
 import { Check, Database, User as UserIcon } from "lucide-react";
-import { checkStrength, passwordStrengthScore } from "@/validation/utils";
 import AddPersonalDetail from "./steps/add-personal-detail";
 import AddVaccineDetail from "./steps/add-vaccine-detail";
-import { PersonCertificate } from "@/database/tables";
+import { Vaccine } from "@/database/tables";
+import { isString } from "@/lib/utils";
 
-export interface AddCertificateProps {
-  onComplete: (personCertificate: PersonCertificate) => void;
-}
-export default function AddCertificate(props: AddCertificateProps) {
-  const { onComplete } = props;
+export default function AddCertificate() {
   const { t } = useTranslation();
   const { modelOnRequestHide } = useModelOnRequestHide();
   const beforeStepSuccess = async (
-    userData: any,
-    currentStep: number,
-    setError: Dispatch<SetStateAction<Map<string, string>>>
+    _userData: any,
+    _currentStep: number,
+    _setError: Dispatch<SetStateAction<Map<string, string>>>
   ) => {
-    if (currentStep == 1) {
-      try {
-        let formData = new FormData();
-        formData.append("email", userData?.email);
-        formData.append("contact", userData?.contact);
-        const response = await axiosClient.post(
-          "user/validate/email/contact",
-          formData
-        );
-        if (response.status == 200) {
-          const emailExist = response.data.email_found === true;
-          const contactExist = response.data.contact_found === true;
-          if (emailExist || contactExist) {
-            const errMap = new Map<string, string>();
-            if (emailExist) {
-              errMap.set("email", `${t("email")} ${t("is_registered_before")}`);
-            }
-            if (contactExist) {
-              errMap.set(
-                "contact",
-                `${t("contact")} ${t("is_registered_before")}`
-              );
-            }
-            setError(errMap);
-            return false;
-          }
-        }
-      } catch (error: any) {
-        toast({
-          toastType: "ERROR",
-          title: t("error"),
-          description: error.response.data.message,
-        });
-        console.log(error);
-        return false;
-      }
-    }
     return true;
   };
   const stepsCompleted = async (
@@ -69,23 +28,58 @@ export default function AddCertificate(props: AddCertificateProps) {
     setError: Dispatch<SetStateAction<Map<string, string>>>
   ) => {
     try {
-      const response = await axiosClient.post("epi/user/store", {
-        permissions: userData?.permissions,
-        status: userData.status == true,
-        role_id: userData?.role?.id,
-        zone_id: userData?.zone?.id,
-        job_id: userData.job.id,
-        destination_id: userData.destination.id,
-        contact: userData.contact,
-        password: userData.password,
-        email: userData.email,
-        username: userData.username,
+      const formatedVaccines: any[] = [];
+      userData?.vaccines_list?.forEach((vaccine: Vaccine) => {
+        const item: {
+          id: any;
+          vaccine_type_id: any;
+          registration_number: any;
+          volume: any;
+          page: any;
+          registration_date: any;
+          vaccine_center_id: any;
+          doses: any[];
+        } = {
+          id: vaccine.id,
+          vaccine_type_id: vaccine.vaccine_type?.id,
+          registration_number: vaccine.registration_number,
+          volume: vaccine.volume,
+          page: vaccine.page,
+          registration_date: vaccine.registration_date?.toDate()?.toISOString(),
+          vaccine_center_id: vaccine.vaccine_center?.id,
+          doses: [],
+        };
+        const doses: any[] = [];
+
+        vaccine.doses.forEach((dose: any) => {
+          doses.push({
+            id: dose.id,
+            dose: dose.dose,
+            batch_number: dose.batch_number,
+            vaccine_date: dose.vaccine_date?.toDate()?.toISOString(),
+            added_by: dose.added_by,
+          });
+        });
+        item.doses.push(doses);
+        formatedVaccines.push(item);
+      });
+      const response = await axiosClient.post("epi/certificate/detail/store", {
+        vaccines: JSON.stringify(formatedVaccines),
         full_name: userData.full_name,
-        gender_id: userData.gender.id,
-        province_id: userData.province.id,
+        father_name: userData.father_name,
+        date_of_birth: !isString(userData.date_of_birth)
+          ? userData.date_of_birth?.toDate()?.toISOString()
+          : userData.date_of_birth,
+        contact: userData.contact,
+        passport_number: userData.passport_number,
+        gender_id: userData.gender?.id,
+        province_id: userData.province?.id,
+        district_id: userData.district?.id,
+        nationality_id: userData.nationality?.id,
+        travel_type_id: userData.travel_type?.id,
+        destina_country_id: userData.destina_country?.id,
       });
       if (response.status == 200) {
-        onComplete(response.data.user);
         toast({
           toastType: "SUCCESS",
           description: response.data.message,
@@ -152,7 +146,7 @@ export default function AddCertificate(props: AddCertificateProps) {
               { name: "province", rules: ["required"] },
               { name: "district", rules: ["required"] },
               { name: "date_of_birth", rules: ["required"] },
-              { name: "passport_no", rules: ["required"] },
+              { name: "passport_number", rules: ["required"] },
               { name: "nationality", rules: ["required"] },
               { name: "travel_type", rules: ["required"] },
               { name: "destina_country", rules: ["required"] },
@@ -162,51 +156,24 @@ export default function AddCertificate(props: AddCertificateProps) {
             component: <AddVaccineDetail />,
             validationRules: [
               {
-                name: "password",
+                name: "vaccines_list",
                 rules: [
                   (value: any) => {
-                    const strength = checkStrength(value, t);
-                    const score = passwordStrengthScore(strength);
-                    if (score === 4) return true;
+                    if (value && Array.isArray(value)) {
+                      if (value.length == 0) {
+                        toast({
+                          toastType: "ERROR",
+                          title: t("error"),
+                          description: t("no_dose_error"),
+                        });
+                        return false;
+                      }
+                      return true;
+                    }
                     return false;
                   },
                 ],
               },
-              { name: "user_letter_of_introduction", rules: ["required"] },
-              { name: "role", rules: ["required"] },
-              { name: "zone", rules: ["required"] },
-              // {
-              //   name: "role",
-              //   rules: [
-              //     (value: any) => {
-              //       if (
-              //         user.role.role == RoleEnum.epi_super ||
-              //         user.role.role == RoleEnum.finance_super
-              //       ) {
-              //         return false;
-              //       } else {
-              //         if (value) return false;
-              //         else return true;
-              //       }
-              //     },
-              //   ],
-              // },
-              // {
-              //   name: "zone",
-              //   rules: [
-              //     (value: any) => {
-              //       if (
-              //         user.role.role == RoleEnum.epi_super ||
-              //         user.role.role == RoleEnum.finance_super
-              //       ) {
-              //         return false;
-              //       } else {
-              //         if (value) return false;
-              //         else return true;
-              //       }
-              //     },
-              //   ],
-              // },
             ],
           },
           {
