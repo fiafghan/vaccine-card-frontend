@@ -1,6 +1,7 @@
 import {
   ActivityModel,
   Audit,
+  CertificatePayment,
   PersonCertificate,
   Role,
   SelectUserPermission,
@@ -29,7 +30,7 @@ export interface UserInformation {
     selected: boolean;
   };
   role: {
-    id: string;
+    id: number;
     name: string;
     selected: boolean;
   };
@@ -118,7 +119,13 @@ export interface PersonCertificatePaginationData {
   currentPage: number;
   totalItems: number;
 }
-
+export interface CertificatePaymentPaginationData {
+  data: CertificatePayment[];
+  lastPage: number;
+  perPage: number;
+  currentPage: number;
+  totalItems: number;
+}
 export interface Configuration {
   token?: string;
   type?: string;
@@ -159,6 +166,7 @@ export type IUserPermission = {
   view: boolean;
   delete: boolean;
   add: boolean;
+  singleRow: boolean;
   visible: boolean;
   permission: string;
   icon: string;

@@ -1,3 +1,5 @@
+import { DateObject } from "react-multi-date-picker";
+
 export type Role =
   | { role: 1; name: "epi_super" }
   | { role: 2; name: "epi_admin" }
@@ -25,6 +27,7 @@ export interface SubPermission {
   view: boolean;
   delete: boolean;
   add: boolean;
+  singleRow: boolean;
 }
 export type UserPermission = {
   id: number;
@@ -181,6 +184,18 @@ export type Finance = {
   province: string;
   gender: string;
 };
+export type Person = {
+  id: string;
+  full_name: string;
+  father_name: string;
+  passport_number: string;
+  date_of_birth: string | DateObject;
+  contact: string;
+  gender: { id: string; name: string };
+  nationality: { id: string; name: string };
+  district: { id: string; name: string };
+  province: { id: string; name: string };
+};
 export type PersonCertificate = {
   id: string;
   passport_number: string;
@@ -189,6 +204,48 @@ export type PersonCertificate = {
   contact: string;
   gender: string;
   last_visit_date: string;
+};
+export type CertificatePayment = {
+  id: string;
+  passport_number: string;
+  full_name: string;
+  father_name: string;
+  contact: string;
+  has_payment: number;
+  last_visit_date: string;
+  visit_id: string;
+  amount: number;
+};
+export type VaccineType = {
+  id: string;
+  name: string;
+};
+export type VaccineCenter = {
+  id: string;
+  name: string;
+};
+export type Dose = {
+  id: string;
+  dose: string;
+  batch_number: string;
+  vaccine_date: string | DateObject;
+  added_by: string;
+};
+export type Vaccine = {
+  id: string;
+  vaccine_type?: VaccineType;
+  registration_number: string;
+  volume: string;
+  page: string;
+  registration_date: DateObject;
+  vaccine_center?: VaccineCenter;
+  doses: Dose[];
+};
+export type PersonVisit = {
+  vaccine_type: string;
+  visited_date: string;
+  travel_type: string;
+  destination_country: string;
 };
 export type CheckList = {
   id: string;

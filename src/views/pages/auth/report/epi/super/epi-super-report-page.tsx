@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import ReportCoverPage from "./CoverPageEPISuper";
 import BarChartTwo from "./BarChartTwo";
 import PieChartTwo from "./PieChart2";
 import AreaChartTow from "./AreaChartTwo";
+import { Printer } from "lucide-react";
 
 const zones = ["Herat", "Mazar", "Kabul", "Kandahar"];
 
@@ -169,6 +170,7 @@ export default function EpiSuperReportPage() {
   const [selectedGender, setSelectedGender] = useState<string>("All");
   const [selectedTravelType, setSelectedTravelType] = useState<string>("All");
   const [selectedDestination, setSelectedDestination] = useState<string>("All");
+  const contentRef = useRef<HTMLDivElement>(null);
   
 
   // Controls visibility of entire header + filters block
@@ -221,24 +223,65 @@ export default function EpiSuperReportPage() {
         : 0,
   };
 
-  const destinations =
-    selectedDestination === "All"
-      ? baseData.destinations
-      : {
-          [selectedDestination]:
-            baseData.destinations[selectedDestination] || 0,
-        };
+  const destinations = useMemo(() => {
+    let filteredData = baseData.destinations;
+  
+    // First filter: Destination selection
+    if (selectedDestination !== "All") {
+      filteredData = {
+        [selectedDestination]: baseData.destinations[selectedDestination] || 0
+      };
+    }
+  
+    // Second filter: Gender
+    if (selectedGender !== "All") {
+      const genderMultiplier = selectedGender === "Males" ? 1 : 0;
+      const filteredEntries = Object.entries(filteredData).map(([dest, count]) => [
+        dest,
+        count * genderMultiplier
+      ]);
+      filteredData = Object.fromEntries(filteredEntries);
+    }
+  
+    // Third filter: Travel Type
+    if (selectedTravelType !== "All") {
+      const totalTravelTypes = baseData.travelTypes.type1 + 
+                             baseData.travelTypes.type2 + 
+                             baseData.travelTypes.type3;
+    
+      // Type-safe key handling
+      const typeNumber = selectedTravelType.split(" ")[1] as '1' | '2' | '3';
+      const travelTypeKey = `type${typeNumber}` as keyof typeof baseData.travelTypes;
+    
+      // Handle potential division by zero
+      const travelTypeRatio = totalTravelTypes > 0 
+        ? baseData.travelTypes[travelTypeKey] / totalTravelTypes
+        : 0;
+    
+      const filteredEntries = Object.entries(filteredData).map(([dest, count]) => [
+        dest,
+        Math.round(count * travelTypeRatio)
+      ]);
+      filteredData = Object.fromEntries(filteredEntries);
+    }
+    
+  
+    return filteredData;
+  }, [baseData, selectedDestination, selectedGender, selectedTravelType]);
 
-
+      
   return (
-    <div className="min-h-screen bg-white p-4 flex flex-col items-center justify-start">
+    <div className="min-h-screen bg-white p-4 flex flex-col items-center 
+    justify-start " ref={contentRef}>
+      
       {/* Header + Filters: hidden together */}
       {showFilters && (
-        <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8 mb-6">
+        <div className="print:hidden w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8 mb-6">
           <h1 className="text-2xl font-bold text-green-700 mb-6 text-center uppercase">
             Report Viewer For EPI Super Admin
           </h1>
 
+         
           <div className="mb-4">
             <h2 className="text-lg font-bold text-green-700 mb-4">Filters</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -254,7 +297,8 @@ export default function EpiSuperReportPage() {
                   id="zone-select"
                   value={selectedZone}
                   onChange={(e) => setSelectedZone(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none 
+                  focus:ring-2 focus:ring-green-600"
                 >
                   <option value="All Zones">-- All Zones --</option>
                   {zones.map((zone) => (
@@ -277,7 +321,8 @@ export default function EpiSuperReportPage() {
                   id="gender-select"
                   value={selectedGender}
                   onChange={(e) => setSelectedGender(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none 
+                  focus:ring-2 focus:ring-green-600"
                 >
                   {genders.map((g) => (
                     <option key={g} value={g}>
@@ -299,7 +344,8 @@ export default function EpiSuperReportPage() {
                   id="traveltype-select"
                   value={selectedTravelType}
                   onChange={(e) => setSelectedTravelType(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg 
+                  focus:outline-none focus:ring-2 focus:ring-green-600"
                 >
                   {travelTypeOptions.map((type) => (
                     <option key={type} value={type}>
@@ -330,24 +376,32 @@ export default function EpiSuperReportPage() {
                   ))}
                 </select>
               </div>
+                  </div>
+                </div>
 
 
-              <button
-                onClick={() => setShowFilters(false)}
-                className="w-[700px] mt-2 bg-green-600 border-2 border-gray-800 
-              text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-700 
-              transition-colors duration-300"
-              >
-                Generate Report
-              </button>
-            </div>
-          </div>
+                <div>
+                <button
+                  onClick={() => {
+                    window.print();
+                    setShowFilters(false);
+                  }}
+                  className="p-3 rounded-md bg-gray-900 hover:bg-gray-700 text-green-400 ring-gray-700 
+                  shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 
+                  focus:ring-gray-700 w-full flex justify-center"
+                  aria-label="Print"
+                >
+                  <Printer className="w-5 h-5 mr-2" />Print
+                </button>
+                </div>
+                
+
         </div>
       )}
 
       {/* Report Results Section */}
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8">
-        <div className="flex justify-center">
+      <div  id = "report-section" className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8">
+        <div  className="flex justify-center">
           {/* Cover Page of Report */}
           <ReportCoverPage
             userName="Test User"
@@ -364,9 +418,9 @@ export default function EpiSuperReportPage() {
         <h2 className="text-xl font-bold text-green-700 mb-4 text-center">
           Report Results
         </h2>
-        <div className="grid gap-6 md:grid-cols-2 text-black">
-          <div className="p-4 border rounded-lg shadow-sm bg-green-50">
-            <h2 className="text-lg font-semibold mb-2 text-green-800">
+        <div className="grid gap-4 md:grid-cols-2 text-black tex-sm print:report-section">
+          <div className="p-2 border rounded-lg shadow-sm bg-green-50">
+            <h2 className="text-base font-semibold mb-1 text-green-800">
               Gender Stats
             </h2>
             <p>
@@ -413,19 +467,12 @@ export default function EpiSuperReportPage() {
                 </li>
               ))}
             </ul>
-
-            <AreaChartTow data={
-
-               [
-                { country: "Saudi Arabia", passengers: 300 },
-                { country: "Pakistan", passengers: 6399 },
-                { country: "Iran", passengers: 1290 },
-                { country: "Russia", passengers: 5430 },
-                { country: "Japan", passengers: 3030 },
-                
-              ]
-
-            } />
+              <AreaChartTow 
+              data={Object.entries(destinations).map(([country, passengers]) => ({
+                country: country,
+                passengers: passengers
+              }))} 
+            />
           </div>
         </div>
       </div>

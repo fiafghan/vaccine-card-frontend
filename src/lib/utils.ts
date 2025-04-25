@@ -149,6 +149,12 @@ export const toLocaleDate = (date: Date, state: any) => {
     .format();
   return gre;
 };
+export const dateObjectToString = (date: DateObject, state: any) => {
+  const gre = date
+    .convert(state.systemLanguage.calendar, state.systemLanguage.local)
+    .format();
+  return gre;
+};
 
 export const setDateToURL = (
   queryParams: URLSearchParams,
@@ -228,3 +234,6 @@ export const validateFile = (
 
   return file;
 };
+
+export const generateUUID = () =>
+  Math.random().toString(36).slice(2) + Date.now().toString(36);

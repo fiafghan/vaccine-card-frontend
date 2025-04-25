@@ -22,7 +22,7 @@ export const ChecklistEnum = {
   epi_user_letter_of_introduction: 2,
   finance_user_letter_of_introduction: 3,
   epi_letter_of_password_change: 4,
-  finance_letter_of_password_change: 4,
+  finance_letter_of_password_change: 5,
 };
 
 export const PermissionEnum = {
@@ -53,12 +53,13 @@ export const PermissionEnum = {
     },
   },
   reports: { name: "reports", sub: {} },
-  settings: {
-    name: "settings",
+  configurations: {
+    name: "configurations",
     sub: {
-      setting_language: 21,
-      setting_job: 22,
-      setting_destination: 23,
+      configuration_job: 21,
+      configuration_destination: 22,
+      configuration_vaccine_type: 23,
+      configuration_vaccine_center: 24,
     },
   },
   logs: { name: "logs", sub: {} },

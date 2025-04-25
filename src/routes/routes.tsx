@@ -9,13 +9,10 @@ import AuthLayout from "@/views/layout/auth-layout";
 import LoginPage from "@/views/pages/guest/login-page";
 import EpiSuperDashboardPage from "@/views/pages/auth/dashboard/epi/super/epi-super-dashboard-page";
 import EpiSuperReportPage from "@/views/pages/auth/report/epi/super/epi-super-report-page";
-import EpiProfilePage from "@/views/pages/auth/profile/epi/epi-profile-page";
 import FinanceSuperDashboardPage from "@/views/pages/auth/dashboard/finance/super/finance-super-dashboard-page";
 import FinanceSuperReportPage from "@/views/pages/auth/report/finance/super/finance-super-report-page";
-import FinanceProfilePage from "@/views/pages/auth/profile/finance/finance-profile-page";
 import EpiAdminDashboardPage from "@/views/pages/auth/dashboard/epi/admin/epi-admin-dashboard-page";
 import UserEditPage from "@/views/pages/auth/users/edit/user-edit-page";
-import SettingsPage from "@/views/pages/auth/settings/settings-page";
 import ActivityPage from "@/views/pages/auth/activity/activity-page";
 import EpiAdminReportPage from "@/views/pages/auth/report/epi/admin/epi-admin-report-page";
 import FinanceAdminDashboardPage from "@/views/pages/auth/dashboard/finance/admin/finance-admin-dashboard-page";
@@ -30,6 +27,11 @@ import DebuggerLogsPage from "@/views/pages/auth/logs/debugger-logs-page";
 import UserPage from "@/views/pages/auth/users/user-page";
 import FinanceCertificatePaymentUserPage from "@/views/pages/auth/vaccine/payment/finance/user/finance-certificate-payment-user-page";
 import EpiUserVaccineCertificatePage from "@/views/pages/auth/vaccine/certificate/epi/user/epi-user-vaccine-certificate-page";
+import FinaceEpiProfilePage from "@/views/pages/auth/profile/finance-epi/finance-epi-profile-page";
+import VaccineCertificateEditPage from "@/views/pages/auth/vaccine/certificate/epi/user/edit/vaccine-certificate-edit-page";
+import CertificatePaymentEditPage from "@/views/pages/auth/vaccine/payment/finance/user/edit/certificate-payment-edit-page";
+import ConfigurationsPage from "@/views/pages/auth/configurations/configurations-page";
+import SettingsPage from "@/views/pages/auth/setting/settings-page";
 
 export const getEpiSuperRouter = (
   user: User | Epi | Finance,
@@ -48,28 +50,9 @@ export const getEpiSuperRouter = (
             </I18nextProvider>
           }
         >
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute
-                element={<EpiSuperDashboardPage />}
-                routeName="dashboard"
-                permissions={permissions}
-                authenticated={authenticated}
-              />
-            }
-          />
-          <Route
-            path="dashboard"
-            element={
-              <ProtectedRoute
-                element={<EpiSuperDashboardPage />}
-                routeName="dashboard"
-                permissions={permissions}
-                authenticated={authenticated}
-              />
-            }
-          />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="/" element={<EpiSuperDashboardPage />} />
+          <Route path="dashboard" element={<EpiSuperDashboardPage />} />
           <Route
             path="users"
             element={
@@ -103,13 +86,13 @@ export const getEpiSuperRouter = (
               />
             }
           />
-          <Route path="profile" element={<EpiProfilePage />} />
+          <Route path="profile" element={<FinaceEpiProfilePage />} />
           <Route
-            path="settings"
+            path="configurations"
             element={
               <ProtectedRoute
-                element={<SettingsPage />}
-                routeName="settings"
+                element={<ConfigurationsPage />}
+                routeName="configurations"
                 permissions={permissions}
                 authenticated={authenticated}
               />
@@ -150,28 +133,9 @@ export const getEpiAdminRouter = (
             </I18nextProvider>
           }
         >
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute
-                element={<EpiAdminDashboardPage />}
-                routeName="dashboard"
-                permissions={permissions}
-                authenticated={authenticated}
-              />
-            }
-          />
-          <Route
-            path="dashboard"
-            element={
-              <ProtectedRoute
-                element={<EpiAdminDashboardPage />}
-                routeName="dashboard"
-                permissions={permissions}
-                authenticated={authenticated}
-              />
-            }
-          />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="/" element={<EpiAdminDashboardPage />} />
+          <Route path="dashboard" element={<EpiAdminDashboardPage />} />
           <Route
             path="users"
             element={
@@ -205,13 +169,13 @@ export const getEpiAdminRouter = (
               />
             }
           />
-          <Route path="profile" element={<EpiProfilePage />} />
+          <Route path="profile" element={<FinaceEpiProfilePage />} />
           <Route
-            path="settings"
+            path="configurations"
             element={
               <ProtectedRoute
-                element={<SettingsPage />}
-                routeName="settings"
+                element={<ConfigurationsPage />}
+                routeName="configurations"
                 permissions={permissions}
                 authenticated={authenticated}
               />
@@ -252,6 +216,8 @@ export const getEpiUserRouter = (
             </I18nextProvider>
           }
         >
+          <Route path="settings" element={<SettingsPage />} />
+
           <Route
             path="/"
             element={
@@ -274,13 +240,24 @@ export const getEpiUserRouter = (
               />
             }
           />
-          <Route path="profile" element={<EpiProfilePage />} />
           <Route
-            path="settings"
+            path="vaccine_certificate/:id"
             element={
               <ProtectedRoute
-                element={<SettingsPage />}
-                routeName="settings"
+                element={<VaccineCertificateEditPage />}
+                routeName="vaccine_certificate"
+                permissions={permissions}
+                authenticated={authenticated}
+              />
+            }
+          />
+          <Route path="profile" element={<FinaceEpiProfilePage />} />
+          <Route
+            path="configurations"
+            element={
+              <ProtectedRoute
+                element={<ConfigurationsPage />}
+                routeName="configurations"
                 permissions={permissions}
                 authenticated={authenticated}
               />
@@ -310,28 +287,9 @@ export const getFinanceSuperRouter = (
             </I18nextProvider>
           }
         >
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute
-                element={<FinanceSuperDashboardPage />}
-                routeName="dashboard"
-                permissions={permissions}
-                authenticated={authenticated}
-              />
-            }
-          />
-          <Route
-            path="dashboard"
-            element={
-              <ProtectedRoute
-                element={<FinanceSuperDashboardPage />}
-                routeName="dashboard"
-                permissions={permissions}
-                authenticated={authenticated}
-              />
-            }
-          />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="/" element={<FinanceSuperDashboardPage />} />
+          <Route path="dashboard" element={<FinanceSuperDashboardPage />} />
           <Route
             path="users"
             element={
@@ -365,13 +323,13 @@ export const getFinanceSuperRouter = (
               />
             }
           />
-          <Route path="profile" element={<FinanceProfilePage />} />
+          <Route path="profile" element={<FinaceEpiProfilePage />} />
           <Route
-            path="settings"
+            path="configurations"
             element={
               <ProtectedRoute
-                element={<SettingsPage />}
-                routeName="settings"
+                element={<ConfigurationsPage />}
+                routeName="configurations"
                 permissions={permissions}
                 authenticated={authenticated}
               />
@@ -413,28 +371,9 @@ export const getFinanceAdminRouter = (
             </I18nextProvider>
           }
         >
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute
-                element={<FinanceAdminDashboardPage />}
-                routeName="dashboard"
-                permissions={permissions}
-                authenticated={authenticated}
-              />
-            }
-          />
-          <Route
-            path="dashboard"
-            element={
-              <ProtectedRoute
-                element={<FinanceAdminDashboardPage />}
-                routeName="dashboard"
-                permissions={permissions}
-                authenticated={authenticated}
-              />
-            }
-          />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="/" element={<FinanceAdminDashboardPage />} />
+          <Route path="dashboard" element={<FinanceAdminDashboardPage />} />
           <Route
             path="users"
             element={
@@ -468,13 +407,13 @@ export const getFinanceAdminRouter = (
               />
             }
           />
-          <Route path="profile" element={<FinanceProfilePage />} />
+          <Route path="profile" element={<FinaceEpiProfilePage />} />
           <Route
-            path="settings"
+            path="configurations"
             element={
               <ProtectedRoute
-                element={<SettingsPage />}
-                routeName="settings"
+                element={<ConfigurationsPage />}
+                routeName="configurations"
                 permissions={permissions}
                 authenticated={authenticated}
               />
@@ -515,6 +454,8 @@ export const getFinanceUserRouter = (
             </I18nextProvider>
           }
         >
+          <Route path="settings" element={<SettingsPage />} />
+
           <Route
             path="/"
             element={
@@ -537,13 +478,24 @@ export const getFinanceUserRouter = (
               />
             }
           />
-          <Route path="profile" element={<FinanceProfilePage />} />
           <Route
-            path="settings"
+            path="certificate_payment/:id"
             element={
               <ProtectedRoute
-                element={<SettingsPage />}
-                routeName="settings"
+                element={<CertificatePaymentEditPage />}
+                routeName="certificate_payment"
+                permissions={permissions}
+                authenticated={authenticated}
+              />
+            }
+          />
+          <Route path="profile" element={<FinaceEpiProfilePage />} />
+          <Route
+            path="configurations"
+            element={
+              <ProtectedRoute
+                element={<ConfigurationsPage />}
+                routeName="configurations"
                 permissions={permissions}
                 authenticated={authenticated}
               />
@@ -573,45 +525,16 @@ export const getDebuggerRouter = (
             </I18nextProvider>
           }
         >
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute
-                element={<DebuggerDashboardPage />}
-                routeName="dashboard"
-                permissions={permissions}
-                authenticated={authenticated}
-              />
-            }
-          />
-          <Route
-            path="dashboard"
-            element={
-              <ProtectedRoute
-                element={<DebuggerDashboardPage />}
-                routeName="dashboard"
-                permissions={permissions}
-                authenticated={authenticated}
-              />
-            }
-          />
+          <Route path="settings" element={<SettingsPage />} />
+
+          <Route path="/" element={<DebuggerDashboardPage />} />
+          <Route path="dashboard" element={<DebuggerDashboardPage />} />
           <Route
             path="logs"
             element={
               <ProtectedRoute
                 element={<DebuggerLogsPage />}
                 routeName="logs"
-                permissions={permissions}
-                authenticated={authenticated}
-              />
-            }
-          />
-          <Route
-            path="settings"
-            element={
-              <ProtectedRoute
-                element={<SettingsPage />}
-                routeName="settings"
                 permissions={permissions}
                 authenticated={authenticated}
               />

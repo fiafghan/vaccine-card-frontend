@@ -82,12 +82,14 @@ export function VaccineCertificateTable() {
           },
         },
       });
-      const fetch = response.data.personCertificates
+      const fetch = response.data.person_certificates
         .data as PersonCertificate[];
+
       const lastPage = response.data.person_certificates.last_page;
       const totalItems = response.data.person_certificates.total;
       const perPage = response.data.person_certificates.per_page;
       const currentPage = response.data.person_certificates.current_page;
+
       setPersonCertificates({
         filterList: {
           data: fetch,
@@ -137,19 +139,6 @@ export function VaccineCertificateTable() {
   const { t } = useTranslation();
   const [state] = useGlobalState();
 
-  const addItem = (personCertificate: PersonCertificate) => {
-    setPersonCertificates((prevState) => ({
-      filterList: {
-        ...prevState.filterList,
-        data: [personCertificate, ...prevState.filterList.data],
-      },
-      unFilterList: {
-        ...prevState.unFilterList,
-        data: [personCertificate, ...prevState.unFilterList.data],
-      },
-    }));
-  };
-
   const skeleton = (
     <TableRow>
       <TableCell>
@@ -183,7 +172,7 @@ export function VaccineCertificateTable() {
 
   const watchOnClick = async (personCertificate: PersonCertificate) => {
     const userId = personCertificate.id;
-    navigate(`/users/${userId}`);
+    navigate(`/vaccine_certificate/${userId}`);
   };
   return (
     <>
@@ -199,7 +188,7 @@ export function VaccineCertificateTable() {
             }
             showDialog={async () => true}
           >
-            <AddCertificate onComplete={addItem} />
+            <AddCertificate />
           </NastranModel>
         )}
 
@@ -317,7 +306,6 @@ export function VaccineCertificateTable() {
             <TableHead className="text-start">{t("full_name")}</TableHead>
             <TableHead className="text-start">{t("father_name")}</TableHead>
             <TableHead className="text-start">{t("contact")}</TableHead>
-            <TableHead className="text-start">{t("gender")}</TableHead>
             <TableHead className="text-start">{t("last_visit_date")}</TableHead>
           </TableRow>
         </TableHeader>
@@ -360,19 +348,7 @@ export function VaccineCertificateTable() {
                     dir="ltr"
                     className="rtl:text-end rtl:text-sm-rtl truncate"
                   >
-                    {item?.contact == "null" ? "" : item?.contact}
-                  </TableCell>
-                  <TableCell
-                    dir="ltr"
-                    className="truncate rtl:text-sm-rtl rtl:text-end"
-                  >
-                    {item.contact}
-                  </TableCell>
-                  <TableCell
-                    dir="ltr"
-                    className="truncate rtl:text-sm-rtl rtl:text-end"
-                  >
-                    {item.gender}
+                    {item?.contact}
                   </TableCell>
                   <TableCell className="truncate">
                     {toLocaleDate(new Date(item.last_visit_date), state)}
