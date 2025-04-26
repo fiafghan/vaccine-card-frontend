@@ -1,6 +1,8 @@
 import PrimaryButton from "@/components/custom-ui/button/PrimaryButton";
 import Downloader from "@/components/custom-ui/chooser/Downloader";
+import { StepperContext } from "@/components/custom-ui/stepper/StepperContext";
 import { motion } from "framer-motion";
+import { useContext } from "react";
 import { useTranslation } from "react-i18next";
 
 export interface ICompleteStepProps {
@@ -11,10 +13,9 @@ export interface ICompleteStepProps {
   visit_id: string;
   closeText: string;
   closeModel: () => void;
-  onComplete: () => void;
 }
 
-export default function PaymentCompleteStep(props: ICompleteStepProps) {
+export default function CardDownloadCompleteStep(props: ICompleteStepProps) {
   const {
     description,
     closeModel,
@@ -22,10 +23,10 @@ export default function PaymentCompleteStep(props: ICompleteStepProps) {
     successText,
     downloadText,
     passport_number,
-    onComplete,
     visit_id,
   } = props;
   const { t } = useTranslation();
+  const { userData } = useContext(StepperContext);
 
   return (
     <div className="flex flex-col items-center mt-8">
@@ -62,22 +63,25 @@ export default function PaymentCompleteStep(props: ICompleteStepProps) {
         filetoDownload={{
           id: "",
           path: "",
-          name: passport_number + "_payment_reciept.pdf",
+          name: passport_number + "_card_download.pdf",
           extension: "pdf",
           size: 2212,
         }}
         errorText={t("error")}
         cancelText={t("cancel")}
-        onComplete={closeModel}
-        apiUrl={"reciept/download"}
+        onComplete={() => {
+          closeModel();
+        }}
+        apiUrl={"epi/generate/certificate"}
         params={{
           passport_number: passport_number,
           visit_id: visit_id,
+          payment_number: userData.payment_number,
         }}
       />
       <PrimaryButton
         className="rounded-md mt-14 min-w-[80px] shadow-md rtl:text-xl-rtl bg-red-500 hover:bg-red-500"
-        onClick={onComplete}
+        onClick={closeModel}
       >
         {closeText}
       </PrimaryButton>
