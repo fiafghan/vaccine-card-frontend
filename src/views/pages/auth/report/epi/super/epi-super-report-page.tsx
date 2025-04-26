@@ -6,11 +6,8 @@ import AreaChartTow from "./AreaChartTwo";
 import { Printer } from "lucide-react";
 
 const zones = ["Herat", "Mazar", "Kabul", "Kandahar"];
-
 const genders = ["All", "Males", "Females"];
-
 const travelTypeOptions = ["All", "Type 1", "Type 2", "Type 3"];
-
 const destinationsList = [
   "All",
   "Saudi Arabia",
