@@ -1,15 +1,13 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import ReportCoverPage from "./CoverPageFinanceSuper";
 import BarChartTwo from "./BarChartTwo";
 import PieChartTwo from "./PieChart2";
 import AreaChartTow from "./AreaChartTwo";
+import { Printer } from "lucide-react";
 
 const zones = ["Herat", "Mazar", "Kabul", "Kandahar"];
-
 const genders = ["All", "Males", "Females"];
-
 const travelTypeOptions = ["All", "Type 1", "Type 2", "Type 3"];
-
 const destinationsList = [
   "All",
   "Saudi Arabia",
@@ -26,8 +24,7 @@ const destinationsList = [
   "Canada",
 ];
 
-// Mock data with total price per zone (500 AFN per vaccine card)
-
+// Mock data same as before
 const mockZoneData: Record<
   string,
   {
@@ -35,7 +32,7 @@ const mockZoneData: Record<
     females: number;
     travelTypes: { type1: number; type2: number; type3: number };
     destinations: Record<string, number>;
-    totalPrice: number; // Total price = (males + females) * 500
+    ageCategories: Record<string, number>; // New field for age categories
   }
 > = {
   Herat: {
@@ -56,7 +53,12 @@ const mockZoneData: Record<
       UK: 9,
       Canada: 6,
     },
-    totalPrice: (120 + 90) * 500, // 210 * 500 = 105000 AFN
+    ageCategories: {
+      "Under 18": 30,
+      "19-29": 40,
+      "30-50": 60,
+      "Over 50": 20,
+    },
   },
   Mazar: {
     males: 85,
@@ -76,7 +78,12 @@ const mockZoneData: Record<
       UK: 7,
       Canada: 3,
     },
-    totalPrice: (85 + 100) * 500, // 185 * 500 = 92500 AFN
+    ageCategories: {
+      "Under 18": 25,
+      "19-29": 35,
+      "30-50": 50,
+      "Over 50": 15,
+    },
   },
   Kabul: {
     males: 200,
@@ -96,7 +103,12 @@ const mockZoneData: Record<
       UK: 13,
       Canada: 7,
     },
-    totalPrice: (200 + 180) * 500, // 380 * 500 = 190000 AFN
+    ageCategories: {
+      "Under 18": 50,
+      "19-29": 80,
+      "30-50": 120,
+      "Over 50": 30,
+    },
   },
   Kandahar: {
     males: 60,
@@ -116,10 +128,14 @@ const mockZoneData: Record<
       UK: 5,
       Canada: 1,
     },
-    totalPrice: (60 + 70) * 500, // 130 * 500 = 65000 AFN
+    ageCategories: {
+      "Under 18": 15,
+      "19-29": 25,
+      "30-50": 40,
+      "Over 50": 10,
+    },
   },
 };
-
 
 function aggregateAllZones(zonesData: typeof mockZoneData) {
   const result = {
@@ -151,23 +167,37 @@ export default function FinanceSuperReportPage() {
   const [selectedGender, setSelectedGender] = useState<string>("All");
   const [selectedTravelType, setSelectedTravelType] = useState<string>("All");
   const [selectedDestination, setSelectedDestination] = useState<string>("All");
-
+  const contentRef = useRef<HTMLDivElement>(null);
+  
 
   // Controls visibility of entire header + filters block
   const [showFilters, setShowFilters] = useState(true);
 
   const baseData = useMemo(() => {
-    if (selectedZone === "All Zones") return aggregateAllZones(mockZoneData);
+    if (selectedZone === "All Zones") {
+      const aggregated = aggregateAllZones(mockZoneData);
+      return {
+        ...aggregated,
+        ageCategories: zones.reduce((acc, zone) => {
+          const ageData = mockZoneData[zone]?.ageCategories || {};
+          for (const ageCat in ageData) {
+            acc[ageCat] = (acc[ageCat] || 0) + ageData[ageCat];
+          }
+          return acc;
+        }, {} as Record<string, number>),
+      };
+    }
+  
     return (
       mockZoneData[selectedZone] ?? {
         males: 0,
         females: 0,
         travelTypes: { type1: 0, type2: 0, type3: 0 },
         destinations: {},
+        ageCategories: {},
       }
     );
   }, [selectedZone]);
-
   const males =
     selectedGender === "All" || selectedGender === "Males" ? baseData.males : 0;
   const females =
@@ -190,24 +220,65 @@ export default function FinanceSuperReportPage() {
         : 0,
   };
 
-  const destinations =
-    selectedDestination === "All"
-      ? baseData.destinations
-      : {
-          [selectedDestination]:
-            baseData.destinations[selectedDestination] || 0,
-        };
+  const destinations = useMemo(() => {
+    let filteredData = baseData.destinations;
+  
+    // First filter: Destination selection
+    if (selectedDestination !== "All") {
+      filteredData = {
+        [selectedDestination]: baseData.destinations[selectedDestination] || 0
+      };
+    }
+  
+    // Second filter: Gender
+    if (selectedGender !== "All") {
+      const genderMultiplier = selectedGender === "Males" ? 1 : 0;
+      const filteredEntries = Object.entries(filteredData).map(([dest, count]) => [
+        dest,
+        count * genderMultiplier
+      ]);
+      filteredData = Object.fromEntries(filteredEntries);
+    }
+  
+    // Third filter: Travel Type
+    if (selectedTravelType !== "All") {
+      const totalTravelTypes = baseData.travelTypes.type1 + 
+                             baseData.travelTypes.type2 + 
+                             baseData.travelTypes.type3;
+    
+      // Type-safe key handling
+      const typeNumber = selectedTravelType.split(" ")[1] as '1' | '2' | '3';
+      const travelTypeKey = `type${typeNumber}` as keyof typeof baseData.travelTypes;
+    
+      // Handle potential division by zero
+      const travelTypeRatio = totalTravelTypes > 0 
+        ? baseData.travelTypes[travelTypeKey] / totalTravelTypes
+        : 0;
+    
+      const filteredEntries = Object.entries(filteredData).map(([dest, count]) => [
+        dest,
+        Math.round(count * travelTypeRatio)
+      ]);
+      filteredData = Object.fromEntries(filteredEntries);
+    }
+    
+  
+    return filteredData;
+  }, [baseData, selectedDestination, selectedGender, selectedTravelType]);
 
+      
   return (
-    <div className="min-h-screen  p-4 items-center justify-start  bg-white px-4 sm:px-6 lg:px-8 py-6 
-    flex flex-col items-cente print:border-0">
+    <div className="min-h-screen bg-white p-4 flex flex-col items-center 
+    justify-start " ref={contentRef}>
+      
       {/* Header + Filters: hidden together */}
       {showFilters && (
-        <div className="w-full max-w-3xl bg-white rounded-2xl">
+        <div className="print:hidden w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8 mb-6">
           <h1 className="text-2xl font-bold text-green-700 mb-6 text-center uppercase">
             Report Viewer For Finance Super Admin
           </h1>
 
+         
           <div className="mb-4">
             <h2 className="text-lg font-bold text-green-700 mb-4">Filters</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -223,7 +294,8 @@ export default function FinanceSuperReportPage() {
                   id="zone-select"
                   value={selectedZone}
                   onChange={(e) => setSelectedZone(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none 
+                  focus:ring-2 focus:ring-green-600"
                 >
                   <option value="All Zones">-- All Zones --</option>
                   {zones.map((zone) => (
@@ -269,8 +341,8 @@ export default function FinanceSuperReportPage() {
                   id="traveltype-select"
                   value={selectedTravelType}
                   onChange={(e) => setSelectedTravelType(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none 
-                  focus:ring-2 focus:ring-green-600"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg 
+                  focus:outline-none focus:ring-2 focus:ring-green-600"
                 >
                   {travelTypeOptions.map((type) => (
                     <option key={type} value={type}>
@@ -301,27 +373,32 @@ export default function FinanceSuperReportPage() {
                   ))}
                 </select>
               </div>
+                  </div>
+                </div>
 
-              <button
-                onClick={() => {setShowFilters(false)
-                  document.body.style.overflow = 'hidden';
-                }
-                }
-                className="col-span-4 bg-gray-900 border-2 border-gray-800 
-              text-green-300 font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-700 
-              transition-colors duration-300"
-              >
-                Generate Report
-              </button>
 
-            </div>
-          </div>
+                <div>
+                <button
+                  onClick={() => {
+                    window.print();
+                    setShowFilters(false);
+                  }}
+                  className="p-3 rounded-md bg-gray-900 hover:bg-gray-700 text-green-400 ring-gray-700 
+                  shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 
+                  focus:ring-gray-700 w-full flex justify-center"
+                  aria-label="Print"
+                >
+                  <Printer className="w-5 h-5 mr-2" />Print
+                </button>
+                </div>
+                
+
         </div>
       )}
 
       {/* Report Results Section */}
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8 overflow-x-auto">
-        <div className="flex justify-center">
+      <div  id = "report-section" className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8">
+        <div  className="flex justify-center">
           {/* Cover Page of Report */}
           <ReportCoverPage
             userName="Test User"
@@ -338,19 +415,19 @@ export default function FinanceSuperReportPage() {
         <h2 className="text-xl font-bold text-green-700 mb-4 text-center">
           Report Results
         </h2>
-        <div className="grid gap-6 md:grid-cols-2 text-black">
-          <div className="p-4 border rounded-lg shadow-sm bg-green-50">
-            <h2 className="text-lg font-semibold mb-2 text-green-800">
+        <div className="grid gap-4 md:grid-cols-2 text-black tex-sm print:report-section">
+          <div className="p-2 border rounded-lg shadow-sm bg-green-50">
+            <h2 className="text-base font-semibold mb-1 text-green-800">
               Gender Stats
             </h2>
             <p>
-              Males: <strong>{males*500} AFN</strong>
+              Males: <strong>{males * 500} AFN</strong>
             </p>
             <p>
-              Females: <strong>{females*500} AFN</strong>
+              Females: <strong>{females * 500} AFN</strong>
             </p>
 
-            <BarChartTwo male={males*500} female={females*500} />
+            <BarChartTwo male={males * 500} female={females * 500} />
           </div>
 
           <div className="p-4 border rounded-lg shadow-sm bg-green-50">
@@ -374,6 +451,8 @@ export default function FinanceSuperReportPage() {
             />
           </div>
 
+          
+
           <div className="md:col-span-2 p-4 border rounded-lg shadow-sm bg-green-50">
             <h2 className="text-lg font-semibold mb-2 text-green-800">
               Destinations
@@ -381,23 +460,16 @@ export default function FinanceSuperReportPage() {
             <ul className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
               {Object.entries(destinations).map(([country, count]) => (
                 <li key={country}>
-                  {country}: <strong>{count * 500} AFN</strong>
+                  {country}: <strong>{count * 500}</strong>
                 </li>
               ))}
             </ul>
-
-            <AreaChartTow data={
-
-               [
-                { country: "Saudi Arabia", passengers: 180*500 },
-                { country: "Pakistan", passengers: 67*500 },
-                { country: "Iran", passengers: 68*500 },
-                { country: "UAE", passengers: 47*500 },
-                { country: "Turkey", passengers: 57*500 },
-                
-              ]
-
-            } />
+              <AreaChartTow 
+              data={Object.entries(destinations).map(([country, passengers]) => ({
+                country: country,
+                passengers: passengers * 500
+              }))} 
+            />
           </div>
         </div>
       </div>
